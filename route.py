@@ -22,6 +22,9 @@ def get_db():
                                                 })
 async def register(account_data: AccountBase, db: Session = Depends(get_db)):
     curd = AccountCrud(db)
-    
+    username = account_data.username
+    check_name_result = curd.username_exist(username)
+    if check_name_result:
+        raise AccountException(403, reason=check_name_result)
     curd.create(account_data)
     return ResponseBase(success = True)
