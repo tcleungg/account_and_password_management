@@ -32,5 +32,10 @@ async def register(account_data: AccountBase, db: Session = Depends(get_db)):
     valid_name_result = curd.valid_username(username)
     if valid_name_result:
         raise AccountException(403, reason=valid_name_result)
+
+    valid_pw_result = curd.valid_password(password)
+    if valid_pw_result:
+        raise AccountException(403, reason=valid_pw_result)
+       
     curd.create(account_data)
     return ResponseBase(success = True)
