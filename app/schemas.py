@@ -16,3 +16,13 @@ class AccountErrorBase(BaseModel):
             "example": {"success": "false",
                         "reason": "Username already exists."},
         }
+
+class VerifyErrorBase(BaseModel):
+    success: bool
+    reason: str
+
+    class Config:
+        schema_extra = {
+            "example": {"success": "false",
+                        "reason": "Incorrect username or password."},
+        }

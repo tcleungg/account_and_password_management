@@ -3,8 +3,8 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.crud import AccountCrud
-from app.schemas import AccountBase, ResponseBase, AccountErrorBase
-from app.exception import AccountException
+from app.schemas import AccountBase, ResponseBase, AccountErrorBase, VerifyErrorBase
+from app.exception import AccountException, VerifyException
 from app.db import SessionLocal
 
 router = APIRouter()
@@ -38,4 +38,19 @@ async def register(account_data: AccountBase, db: Session = Depends(get_db)):
         raise AccountException(403, reason=valid_pw_result)
        
     curd.create(account_data)
+    return ResponseBase(success = True)
+
+@router.post("/api/account/verify", responses={
+                                                    200: {"model": ResponseBase},
+                                                    400: {"model": VerifyErrorBase},
+                                                })
+async def login(input_account: AccountBase, db: Session = Depends(get_db)):
+    curd = AccountCrud(db)
+    account = curd.get(input_account.username)
+    if not account:
+        raise VerifyException()
+    
+    if input_account.password != account.password:
+        raise VerifyException()
+        
     return ResponseBase(success = True)

@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app import models
 from app.db import engine
-from app.exception import AccountException
+from app.exception import AccountException, VerifyException
 from route import router
 models.Base.metadata.create_all(bind=engine, checkfirst=True)
 
@@ -12,6 +12,14 @@ app.include_router(router)
 
 @app.exception_handler(AccountException)
 async def account_exception_handler(request: Request, exc: AccountException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"success": exc.success,
+                "reason": exc.reason},
+    )
+
+@app.exception_handler(VerifyException)
+async def account_exception_handler(request: Request, exc: VerifyException):
     return JSONResponse(
         status_code=exc.status_code,
         content={"success": exc.success,

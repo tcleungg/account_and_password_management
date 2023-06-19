@@ -36,3 +36,6 @@ class AccountCrud:
         self.db.add(account)
         self.db.commit()
         self.db.refresh(account)
+
+    def get(self, username):
+        return self.db.query(models.Account).filter(models.Account.username == username).first()
