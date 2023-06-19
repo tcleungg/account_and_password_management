@@ -9,6 +9,7 @@ uvicorn = "*"
 sqlalchemy = "*"
 databases = "*"
 aiosqlite = "*"
+passlib = "*"
 
 [dev-packages]
 

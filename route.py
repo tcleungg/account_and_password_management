@@ -50,7 +50,8 @@ async def login(input_account: AccountBase, db: Session = Depends(get_db)):
     if not account:
         raise VerifyException()
     
-    if input_account.password != account.password:
+    is_valid = curd.verify(input_account.password, account.password)
+    if is_valid == False:
         raise VerifyException()
         
     return ResponseBase(success = True)

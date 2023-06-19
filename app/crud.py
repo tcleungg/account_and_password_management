@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from passlib.context import CryptContext
 import re
 
 from app import models, schemas
@@ -6,6 +7,7 @@ from app import models, schemas
 class AccountCrud:
     def __init__(self, db: Session):
         self.db = db
+        self.ctx = CryptContext(schemes=["sha256_crypt"])
 
     def username_exist(self, username):
          if self.db.query(models.Account).filter(models.Account.username == username).first():
@@ -30,12 +32,16 @@ class AccountCrud:
             return "The Password should contain at least 1 uppercase letter (A-Z)."
 
     def create(self, data: schemas.AccountBase):
+        hashed_password = self.ctx.hash(data.password)
         account = models.Account(
                             username=data.username,
-                            password=data.password)
+                            password=hashed_password)
         self.db.add(account)
         self.db.commit()
         self.db.refresh(account)
 
     def get(self, username):
         return self.db.query(models.Account).filter(models.Account.username == username).first()
+    
+    def verify(self, input_password, password):
+        return self.ctx.verify(input_password, password)
