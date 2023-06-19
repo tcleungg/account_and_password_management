@@ -8,7 +8,7 @@ class AccountCrud:
         self.db = db
 
     def username_exist(self, username):
-         if self.db.query(models.Account).filter(models.Account.username == username).all():
+         if self.db.query(models.Account).filter(models.Account.username == username).first():
              return "Username already exists"
          return None
 
