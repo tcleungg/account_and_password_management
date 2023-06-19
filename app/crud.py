@@ -11,6 +11,11 @@ class AccountCrud:
              return "Username already exists"
          return None
 
+    def valid_username(self, username):
+        length = len(username)
+        if length < 3 or length > 32:
+            return "The Username should be minimum 3, maximum 32."
+        return None
 
     def create(self, data: schemas.AccountBase):
         account = models.Account(
