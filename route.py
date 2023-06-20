@@ -6,6 +6,7 @@ from app.crud import AccountCrud
 from app.schemas import AccountBase, ResponseBase, AccountErrorBase, VerifyErrorBase
 from app.exception import AccountException, VerifyException
 from app.db import SessionLocal
+from utils import account
 
 router = APIRouter()
 
@@ -20,37 +21,37 @@ def get_db():
                                                     200: {"model": ResponseBase},
                                                     403: {"model": AccountErrorBase},
                                                 })
-async def register(account_data: AccountBase, db: Session = Depends(get_db)):
+async def register(data: AccountBase, db: Session = Depends(get_db)):
     curd = AccountCrud(db)
-    username = account_data.username
-    password = account_data.password
+    username = data.username
+    password = data.password
 
-    check_name_result = curd.username_exist(username)
+    check_name_result = account.username_exist(db, username)
     if check_name_result:
         raise AccountException(403, reason=check_name_result)
     
-    valid_name_result = curd.valid_username(username)
+    valid_name_result = account.valid_username(username)
     if valid_name_result:
         raise AccountException(403, reason=valid_name_result)
 
-    valid_pw_result = curd.valid_password(password)
+    valid_pw_result = account.valid_password(password)
     if valid_pw_result:
         raise AccountException(403, reason=valid_pw_result)
        
-    curd.create(account_data)
+    curd.create(data)
     return ResponseBase(success = True)
 
 @router.post("/api/account/verify", responses={
                                                     200: {"model": ResponseBase},
                                                     400: {"model": VerifyErrorBase},
                                                 })
-async def login(input_account: AccountBase, db: Session = Depends(get_db)):
+async def login(data: AccountBase, db: Session = Depends(get_db)):
     curd = AccountCrud(db)
-    account = curd.get(input_account.username)
-    if not account:
+    exist = curd.get(data.username)
+    if not exist:
         raise VerifyException()
     
-    is_valid = curd.verify(input_account.password, account.password)
+    is_valid = account.verify(data.password, exist.password)
     if is_valid == False:
         raise VerifyException()
         
